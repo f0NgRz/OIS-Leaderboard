@@ -8,21 +8,17 @@ const firebaseConfig = {
   measurementId: "G-NS1FT50VWP"
 };
 
-// Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
     console.log("Firebase initialized"); // test
     console.log("DB object:", db); // test
 
-    // House IDs
-    const houseEls = Array.from(document.querySelectorAll('.house')); // "const" is a local variable that value can't be changed and that can only be use under <script> = block-scoped
-    //quearySelector select all components in website that is ".house" decalre in the CSS and html
-    let currentData = {}; // "let" is a local variable that can only be use under <script> = block-scoped
+    const houseEls = Array.from(document.querySelectorAll('.house'));
+    let currentData = {};
     let initialized = false;
     
 
-    // 🔢 Score animation
     function animateScore(el, from, to, done){
       const duration = 900;
       const start = performance.now();
@@ -36,21 +32,17 @@ const firebaseConfig = {
       requestAnimationFrame(step);
     }
 
-    // 🎬 FLIP animation (whole card moves)
     function animateCards(sortedEls) {
       const firstPositions = new Map();
       
-      // 1. Capture "First" positions
       houseEls.forEach(el => {
         firstPositions.set(el, el.getBoundingClientRect().top);
       });
 
-      // 2. Apply new order (the "Last" position)
       sortedEls.forEach((el, i) => {
         el.style.order = i;
       });
 
-      // 3. Play the animation
       requestAnimationFrame(() => {
         houseEls.forEach(el => {
           const lastTop = el.getBoundingClientRect().top;
@@ -58,23 +50,19 @@ const firebaseConfig = {
           const dy = firstTop - lastTop;
 
           if (dy !== 0) {
-            // If this is the card that actually gained points (has the 'updating' class)
             if (el.classList.contains('updating')) {
-              // Pass the distance to CSS variable
               el.style.setProperty('--travel-dist', `${dy}px`);
               
-              // Trigger the @keyframe animation
               el.classList.remove('moving-up');
-              void el.offsetWidth; // Force reflow to restart animation
+              void el.offsetWidth;
               el.classList.add('moving-up');
-
-              // Clean up after animation finishes
+              
               setTimeout(() => {
                 el.classList.remove('moving-up', 'updating');
                 el.style.removeProperty('--travel-dist');
               }, 800);
             } else {
-              // For other cards (those being pushed down), use standard FLIP
+
               el.style.transform = `translateY(${dy}px)`;
               el.style.transition = 'none';
               
@@ -86,13 +74,12 @@ const firebaseConfig = {
           }
         });
 
-        // Add visual glow to the current #1
+
         houseEls.forEach(el => el.classList.remove('leader'));
         sortedEls[0].classList.add('leader');
       });
     }
 
-    // 🔥 Firebase realtime listener
     db.ref('Houses').on('value', snap => {
       const data = snap.val();
       if(!data) return;
@@ -104,16 +91,14 @@ const firebaseConfig = {
           const scoreEl = el.querySelector('.score');
           const nameEl = el.querySelector('.name');
 
-          // 1. Re-insert the real image (replaces the skeleton-img div)
-          // Adjust the path to your local image files
           const imgMap = {
-            red: 'icons8-red-panda-100.png',
-            blue: 'icons8-animal-100.png',
-            green: 'icons8-green-64.png',
-            yellow: 'icons8-bee-top-view-100.png'
+            red: 'red.png',
+            blue: 'blue.png',
+            green: 'green.png',
+            yellow: 'yellow.png'
           };
           
-          // 1. Set names and scores immediately after loading
+ 
           el.innerHTML = `
             <img src="${imgMap[key]}" alt="${data[key].name}">
             <div class="info"><p class="name">${data[key].name}</p></div>
@@ -123,24 +108,24 @@ const firebaseConfig = {
           currentData[key] = data[key].score;
         });
 
-        // 2. Sort them by score immediately
+
         const sorted = [...houseEls].sort(
           (a,b) => data[b.dataset.house].score - data[a.dataset.house].score
         );
 
-        // 3. Apply the order right now
+
         sorted.forEach((el, i) => {
           el.style.order = i;
         });
 
-        // 4. Mark the leader (optional)
+
         sorted[0].classList.add('leader');
 
-        initialized = true; // Setup is done!
-        return; // Stop here so we don't trigger the "Live Update" logic below
+        initialized = true;
+        return; 
       }
 
-      // 🟢 LIVE UPDATES
+
       let needsReorder = false;
       let activeHouseEl = null;
 
@@ -152,18 +137,18 @@ const firebaseConfig = {
 
         if (oldScore !== newScore) {
           needsReorder = true;
-          activeHouseEl = el; // Track which card is actually changing
+          activeHouseEl = el; 
 
-          // 1. Lift the card immediately
+  
           el.classList.add('updating');
 
-          // 2. Animate the numbers
+
           animateScore(
             scoreEl,
             oldScore,
             newScore,
             () => {
-              // Optional: do something when counting finishes
+
             }
           );
 
@@ -172,17 +157,16 @@ const firebaseConfig = {
       });
 
       if (needsReorder) {
-        // 3. Small delay so the "lift" happens before the "slide"
+
         setTimeout(() => {
           const sorted = [...houseEls].sort(
             (a, b) => data[b.dataset.house].score - data[a.dataset.house].score
           );
           
-          // This triggers the FLIP animation you already have
+
           animateCards(sorted);
 
-          // 4. After the movement finishes (600ms is our CSS transition time)
-          // Remove the "lifted" state
+
           setTimeout(() => {
             if (activeHouseEl) {
               activeHouseEl.classList.remove('updating');
@@ -192,3 +176,4 @@ const firebaseConfig = {
       }
 
     });
+
