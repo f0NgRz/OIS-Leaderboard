@@ -1,0 +1,228 @@
+body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* Back Button */
+    .back-btn {
+      position: absolute;
+      top: 25px;
+      left: 25px;
+      text-decoration: none;
+      color: #0077ff;
+      font-size: 0.95em;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 500px;
+      margin-top: 60px;
+    }
+
+    hr { border: 0; border-top: 2px solid #eee; margin: 30px 0; }
+    h2, h3 { text-align: center; color: #333; margin-bottom: 20px; }
+    label { font-weight: bold; display: block; margin-top: 15px; color: #555; font-size: 0.85em; }
+    
+    input, select, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 1em;
+    }
+
+    button { background: #0077ff; color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.3s; }
+    button:hover { background: #005ecb; }
+    .logout-btn { background: #666; margin-top: 10px; }
+
+    .hidden { display: none; }
+
+    /* Leaderboard Mini-View */
+    .leaderboard { margin-bottom: 30px; display: flex; flex-direction: column; gap: 10px; }
+    
+    .house {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      background: #f9f9f9;
+      border-radius: 12px;
+    }
+    
+    .house img {
+      width: 40px;
+      height: 40px;
+      margin-right: 15px;
+    }
+
+    .house .info { flex-grow: 1; }
+    .house .name { font-weight: bold; margin-left: 15px; font-size: 1.1em; }
+    .house .score { font-weight: bold; color: #0077ff; font-size: 1.2em; }
+    .house.leader { background: #e0f7ff; }
+
+    textarea  
+    {  
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 1em;
+    
+      resize: none; 
+      height: 100px;
+
+      font-family:"Arial", sans-serif;  
+      font-size: 15px;   
+    }
+
+    .logs-container {
+      margin-top: 20px;
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    #logs-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85em;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    #logs-table th, #logs-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    #logs-table th {
+      background-color: #f8f9fa;
+      color: #666;
+      letter-spacing: 0.05em;
+    }
+
+    #logs-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .read-more {
+      color: #0077ff;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+
+    .read-more:hover {
+      text-decoration: underline;
+    }
+
+
+    /* Style for the description highlights */
+    .log-house { font-weight: bold; color: #333; }
+    .log-points { font-weight: bold; color: #0077ff; }
+    
+
+    /* --- SHIMMER LOADING EFFECT --- */
+    /* 1. The base gray style for skeletons */
+    .skeleton {
+      background-color: #e2e5e7;
+      background-image: linear-gradient(
+        90deg, 
+        rgba(255, 255, 255, 0) 0, 
+        rgba(255, 255, 255, 0.5) 50%, 
+        rgba(255, 255, 255, 0) 100%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    /* 2. The shimmer animation */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* 3. Specific sizes for our skeletons */
+    .skeleton-img { width: 40px; height: 40px; border-radius: 10%; }
+    .skeleton-name { width: 200px; height: 25px; margin-left: 5px; }
+    .skeleton-score { width: 25px; height: 25px; border-radius: 10%; }
+    /* ---------------------------- */
+
+    /* Recycle Bin Icon Style */
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 4px;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: auto;
+    }
+
+    .icon-btn:hover { background: #fee2e2; }
+    .icon-btn svg { fill: #ef4444; width: 20px; height: 20px; }
+
+    /* Recycle Bin Section Styles */
+    .recycle-section {
+      margin-top: 50px;
+      background: #fdf2f2;
+      border: 1px solid #fecaca;
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .recycle-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8em;
+      color: #7f1d1d;
+    }
+
+    .recycle-table th { text-align: left; padding: 10px; border-bottom: 1px solid #fecaca; }
+    .recycle-table td { padding: 10px; border-bottom: 1px solid #fee2e2; }
+
+    /* Restore Icon Style */
+    .restore-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 4px;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .restore-btn:hover { background: #dcfce7; }
+    .restore-btn svg { fill: #22c55e; width: 20px; height: 20px; }
+
+    /* Adjusting the recycle table for the new button */
+    .recycle-table td:last-child {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
