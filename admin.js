@@ -14,7 +14,7 @@ firebase.initializeApp(firebaseConfig);
 
     const houseEls = Array.from(document.querySelectorAll('.house'))
 
-    let eventTypeData = {}; // Global variable to store points from DB
+    let eventTypeData = {};
 
     function login() {
       const email = document.getElementById('email').value;
@@ -36,7 +36,6 @@ firebase.initializeApp(firebaseConfig);
       }
     });
 
-    // 1. Handle showing/hiding the "Other" text box
     function toggleCustomCategory() {
       const select = document.getElementById('category-select');
       const customContainer = document.getElementById('custom-category-container');
@@ -59,7 +58,6 @@ firebase.initializeApp(firebaseConfig);
 
       db.ref('Categories').once('value', snapshot => {
         const select = document.getElementById('category-select');
-        // Clear everything except the first (Select) and last (Other)
         const otherOption = select.options[select.options.length - 1];
         const placeholder = select.options[0];
         
@@ -105,11 +103,9 @@ firebase.initializeApp(firebaseConfig);
       const houseName = document.getElementById('house-select').options[document.getElementById('house-select').selectedIndex].text;
       const comment = document.getElementById('comment').value || "No comment provided"; // Handle empty comment
 
-      // Category Logic
       const categorySelect = document.getElementById('category-select');
       let category = categorySelect.value;
 
-      // Points are now taken from the ranking dropdown value
       const addedPoints = parseInt(document.getElementById('ranking-select').value);
       const eventType = document.getElementById('event-type-select').value;
 
@@ -120,7 +116,6 @@ firebase.initializeApp(firebaseConfig);
         category = document.getElementById('custom-category-input').value.trim();
       }
 
-      // --- VALIDATIONS ---
       if (!eventType) return alert("Please select an Event Type.");
       if (isNaN(addedPoints)) return alert("Please select a Ranking.");
       if (!category) return alert("Category is required.");
@@ -180,16 +175,13 @@ firebase.initializeApp(firebaseConfig);
           const scoreEl = el.querySelector('.score');
           const nameEl = el.querySelector('.name');
 
-          // 1. Re-insert the real image (replaces the skeleton-img div)
-          // Adjust the path to your local image files
           const imgMap = {
-            red: 'icons8-red-panda-100.png',
-            blue: 'icons8-animal-100.png',
-            green: 'icons8-green-64.png',
-            yellow: 'icons8-bee-top-view-100.png'
+            red: 'red.png',
+            blue: 'blue.png',
+            green: 'green.png',
+            yellow: 'yellow.png'
           };
-          
-          // 1. Set names and scores immediately after loading
+
           el.innerHTML = `
             <img src="${imgMap[key]}" alt="${data[key].name}">
             <div class="info"><p class="name">${data[key].name}</p></div>
@@ -206,23 +198,21 @@ firebase.initializeApp(firebaseConfig);
       });
     }
 
-    let displayLimit = 5; // Start with 5
+    let displayLimit = 5;
 
     function expandLogs() {
-      displayLimit = 10; // Increase to 50 (or whatever number you prefer)
-      startLogsListener(); // Restart the listener with the new limit
-      document.getElementById('read-more-container').classList.add('hidden'); // Hide the button
+      displayLimit = 10;
+      startLogsListener();
+      document.getElementById('read-more-container').classList.add('hidden');
     }
 
     function startLogsListener() {
       const logsRef = db.ref('Logs');
 
-      // 1. First, check the total count of logs to see if we even need a button
       logsRef.on('value', totalSnapshot => {
         const totalCount = totalSnapshot.numChildren();
         const readMoreContainer = document.getElementById('read-more-container');
 
-        // If total logs in DB is more than what we are currently displaying, show button
         if (totalCount > displayLimit) {
           readMoreContainer.classList.remove('hidden');
         } else {
@@ -230,32 +220,24 @@ firebase.initializeApp(firebaseConfig);
         }
       });
 
-      // Listen for the last 5 logs
       logsRef.orderByChild('unixTimestamp').limitToLast(displayLimit).on('value', snapshot => {
         const logsBody = document.getElementById('logs-body');
-        logsBody.innerHTML = ""; // Clear current table
+        logsBody.innerHTML = "";
 
         const logs = [];
         snapshot.forEach(child => {
-          // 1. Get the data fields (houseName, pointsAdded, etc.)
           const data = child.val();
-          // 2. Get the UNIQUE ID (the key like -Njk123...)
           const id = child.key;
-          // 3. Combine them into one object and push to our array
           logs.push({ id: id, ...data });
         });
 
-        // Reverse so the newest is at the top
         logs.reverse().forEach(log => {
           const row = logsBody.insertRow();
           
-          // Column 1: Time
           const timeCell = row.insertCell(0);
           timeCell.innerHTML = `<span style="white-space: nowrap;">${log.fullDateTime}</span>`;
 
-          // Column 2: Description
           const descCell = row.insertCell(1);
-          //const pointText = log.pointsAdded > 0 ? `added ${log.pointsAdded}` : `removed ${Math.abs(log.pointsAdded)}`;
           const rankInfo = log.rankText ? `${log.rankText}` : "";
           
           descCell.innerHTML = `
@@ -286,13 +268,10 @@ firebase.initializeApp(firebaseConfig);
 
       const houseRef = db.ref(`Houses/${logData.houseId}/score`);
 
-      // 1. Revert the math using a transaction
       houseRef.transaction(currentScore => {
-        // To reverse, we SUBTRACT the points that were originally added
         return (currentScore || 0) - logData.pointsAdded;
       }).then((result) => {
         if (result.committed) {
-          // 2. Add the log to the Recycle node
           const recycleRef = db.ref('Recycle').push();
           recycleRef.set({
             ...logData,
@@ -300,7 +279,6 @@ firebase.initializeApp(firebaseConfig);
             deletedBy: auth.currentUser.email
           });
 
-          // 3. Remove the original log from Logs
           return db.ref('Logs').child(logId).remove();
           alert("Log deleted and points reverted!");
         }
@@ -314,18 +292,14 @@ firebase.initializeApp(firebaseConfig);
 
       recycleRef.on('value', snapshot => {
         const recycleBody = document.getElementById('recycle-body');
-        recycleBody.innerHTML = ""; // Clear table once before the loop
+        recycleBody.innerHTML = "";
 
         const deletedItems = [];
         snapshot.forEach(child => {
-          // Capture the ID (key) so we can restore it later
           deletedItems.push({ recycleKey: child.key, ...child.val() });
         });
 
-        // Sort by deletion time (newest first)
         deletedItems.sort((a, b) => b.deletedAt - a.deletedAt);
-
-        // Limit to last 5 for now
         deletedItems.slice(0, 5).forEach(item => {
           const row = recycleBody.insertRow();
           
@@ -340,7 +314,6 @@ firebase.initializeApp(firebaseConfig);
             <br><small> Deleted by — ${item.deletedBy}</small>
           `;
 
-          // Restore Button Column
           const actionCell = row.insertCell(2);
           const btn = document.createElement('button');
           btn.className = "restore-btn";
@@ -363,15 +336,12 @@ firebase.initializeApp(firebaseConfig);
 
       const houseRef = db.ref(`Houses/${itemData.houseId}/score`);
       
-      // 1. Put the points back
       houseRef.transaction(current => (current || 0) + itemData.pointsAdded)
         .then(() => {
-          // 2. Move back to Logs (removing deletion-specific metadata)
           const { deletedAt, deletedBy, id, ...originalLogData } = itemData;
           return db.ref('Logs').push().set(originalLogData);
         })
         .then(() => {
-          // 3. Remove from Recycle Bin
           return db.ref('Recycle').child(recycleId).remove();
         })
         .then(() => {
@@ -390,4 +360,5 @@ firebase.initializeApp(firebaseConfig);
         document.addEventListener(e, resetTimer, true);
       });
       resetTimer();
+
     }
