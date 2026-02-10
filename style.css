@@ -61,7 +61,6 @@
     .house .score {
       font-size: 1.5em;
       font-weight: bold;
-      color: #0077ff;
       width: 60px;
       text-align: right;
     }
@@ -311,3 +310,4 @@
   }
 
   }
+
