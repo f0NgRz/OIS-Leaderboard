@@ -235,7 +235,9 @@ firebase.initializeApp(firebaseConfig);
           const row = logsBody.insertRow();
           
           const timeCell = row.insertCell(0);
-          timeCell.innerHTML = `<span style="white-space: nowrap;">${log.fullDateTime}</span>`;
+          const AddedAt = new Date(log.unixTimestamp).toLocaleString([], {year:"numeric", month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'});
+          timeCell.innerHTML = `${AddedAt}`;
+
 
           const descCell = row.insertCell(1);
           const rankInfo = log.rankText ? `${log.rankText}` : "";
@@ -362,3 +364,4 @@ firebase.initializeApp(firebaseConfig);
       resetTimer();
 
     }
+
