@@ -201,7 +201,7 @@ firebase.initializeApp(firebaseConfig);
     let displayLimit = 5;
 
     function expandLogs() {
-      displayLimit = 10;
+      displayLimit = 50;
       startLogsListener();
       document.getElementById('read-more-container').classList.add('hidden');
     }
@@ -364,4 +364,5 @@ firebase.initializeApp(firebaseConfig);
       resetTimer();
 
     }
+
 
