@@ -28,7 +28,7 @@ body {
       padding: 30px;
       border-radius: 20px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      width: 100%;
+      width: 90%;
       max-width: 500px;
       margin-top: 60px;
     }
@@ -37,7 +37,7 @@ body {
     h2, h3 { text-align: center; color: #333; margin-bottom: 20px; }
     label { font-weight: bold; display: block; margin-top: 15px; color: #555; font-size: 0.85em; }
     
-    input, select, textarea, button {
+    input, select, button {
       width: 100%;
       padding: 12px;
       margin: 8px 0;
@@ -47,11 +47,19 @@ body {
       font-size: 1em;
     }
 
+    .user-info-bar {
+      text-align: left;
+      font-size: 0.85em;
+      color: #666;
+      margin-bottom: 10px;
+      font-style: italic;
+    }
+
+
     button { background: #0077ff; color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.3s; }
     button:hover { background: #005ecb; }
-    .logout-btn { background: #666; margin-top: 10px; }
 
-    .hidden { display: none; }
+    .hidden {display: none !important;}
 
     /* Leaderboard Mini-View */
     .leaderboard { margin-bottom: 30px; display: flex; flex-direction: column; gap: 10px; }
@@ -73,9 +81,8 @@ body {
     .house .info { flex-grow: 1; }
     .house .name { font-weight: bold; margin-left: 15px; font-size: 1.1em; }
     .house .score { font-weight: bold; font-size: 1.2em; }
-
     .leader {
-      transform: scale(1.05);
+      transform: scale(1.02);
     }
 
        /* Specific glows based on house color */
@@ -116,7 +123,6 @@ body {
       border: 1px solid #ddd;
       border-radius: 8px;
       box-sizing: border-box;
-      font-size: 1em;
     
       resize: none; 
       height: 100px;
@@ -126,9 +132,34 @@ body {
     }
 
     .logs-container {
-      margin-top: 20px;
-      width: 100%;
-      overflow-x: auto;
+      /* Approximately the height of 10 log items */
+      max-height: 550px; 
+      overflow-y: auto;
+      border: 1px solid #eee;
+      padding: 10px;
+      border-radius: 8px;
+      background: #fafafa;
+      
+      /* Smooth scrolling for mobile */
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Optional: Make the scrollbar look a bit more modern */
+    .logs-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .logs-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    .logs-container::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 10px;
+    }
+
+    .logs-container::-webkit-scrollbar-thumb:hover {
+      background: #bbb;
     }
 
     #logs-table {
@@ -223,7 +254,7 @@ body {
       margin-top: 50px;
       background: #fdf2f2;
       border: 1px solid #fecaca;
-      padding: 20px;
+      padding: 10px;
       border-radius: 12px;
     }
 
@@ -255,8 +286,114 @@ body {
 
     /* Adjusting the recycle table for the new button */
     .recycle-table td:last-child {
-      display: flex;
+
       gap: 10px;
       justify-content: flex-end;
-
     }
+
+    /* Full screen loading overlay */
+    #loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(240, 244, 248, 0.9); /* Matches your body background */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    /* The actual spinning circle */
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid #ddd;
+      border-top: 5px solid #0077ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      margin-top: 15px;
+      font-family: Arial, sans-serif;
+      color: #333;
+      font-weight: bold;
+    }
+
+@media (max-width: 600px) {
+  body {
+    padding: 10px; /* Less wasted space on edges */
+  }
+  .user-info-bar{
+    margin-left: 5px;
+    font-size: 11px;
+  }
+
+  .container{
+    max-width: 350px;
+  }
+  
+  hr{
+    margin-top:20px;
+    margin-bottom:20px;
+  }
+
+  h3{
+    font-size: 16px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+  }
+
+  .container {
+    width: 100%;
+    padding: 20px 15px; /* Tighter padding */
+    margin-top: 50px;
+    border-radius: 12px; /* Slightly softer corners for mobile */
+  }
+
+  /* Prevent iOS from zooming in when tapping inputs */
+  input, select, textarea, button {
+    font-size: 14px !important;
+  }
+
+  /* Back button fix: Move it to a more natural spot */
+  .back-btn {
+    font-size: 0.85em;
+    top: 15px;
+    left: 15px;
+  }
+
+  #logs-table th,td{
+    font-size: 12px;
+  }
+
+
+   .recycle-table tr,.recycle-table td{
+    font-size: 12px;
+  }
+ 
+  /* 3. Leaderboard scaling */
+  .house {
+    padding: 10px;
+  }
+  
+  .house img {
+    margin-left:10px;
+    width: 35px;
+    height: 35px;
+  }
+
+  .house .name, .house .score {
+    font-size: 16px;
+    margin-left: 5px;
+    margin-right: 10px
+  }
+}

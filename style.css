@@ -1,4 +1,4 @@
- body {
+body {
       margin: 0;
       font-family: 'Arial', sans-serif;
       background: #f0f4f8;
@@ -27,8 +27,8 @@
 
     .house {
       display: flex;
-      align-items: center;
-      padding: 20px;
+      overflow: hidden;
+      flex-direction: column;
       background: #fff;
       border-radius: 20px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -48,13 +48,18 @@
     }
 
     .house .info {
-      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
     }
 
     .house .name {
       font-size: 1.5em;
       font-weight: bold;
       margin: 0;
+      flex-shrink: 0;
       color: #222;
     }
 
@@ -63,6 +68,7 @@
       font-weight: bold;
       width: 60px;
       text-align: right;
+      color: #222;
     }
 
     .house.updating {
@@ -84,7 +90,7 @@
     }
 
     .leader {
-      transform: scale(1.05);
+      transform: scale(1.02);
     }
 
        /* Specific glows based on house color */
@@ -111,35 +117,101 @@
       border: 2px solid #f1c40f;
       box-shadow: 0 10px 25px rgba(241, 196, 15, 0.2);
     }
+
+    .house:hover{
+      transform: scale(1.05);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      padding: 20px; /* Moves the padding from .house to here */
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* The Expandable Drawer */
+    .details-drawer {
+      display: grid;
+      grid-template-rows: 0fr; /* Closed by default */
+      transition: grid-template-rows 0.4s ease-out;
+      background: #fcfcfc00;
+    }
+
+    .house.expanded .details-drawer {
+      grid-template-rows: 1fr; /* Open */
+    }
+
+    .details-content {
+      border-top: 1px solid #eee;
+      min-height: 0
+    }
+
+
+    .log-container {
+      /* Limit the height of the logs list */
+      opacity: 1 !important;
+      visibility: visible !important;
+      flex: 1;
+      max-height: 250px; 
+      overflow-y: auto; /*Adds scrollbar when too many logs */
+      border-top: 1px solid #eee;
+    }
+
+    /* 🎨 Optional: Styling the scrollbar to look cleaner */
+    .log-container::-webkit-scrollbar {
+      width: 6px;
+    }
+    .log-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    .log-container::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 10px;
+    }
+    .log-container::-webkit-scrollbar-thumb:hover {
+      background: #999;
+    }
+
+    .log-item {
+      display: flex;
+      justify-content: space-between; /* Pushes reason left and points right */
+      align-items: center;
+      padding: 12px 20px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .log-reason {
+      font-size: 0.95em;
+      color: #444;
+      line-height: 1.4;
+      max-width: 70%; /* Prevents text from hitting the points */
+    }
+
+    .log-points {
+      font-weight: bold;
+      color: #2ecc71; /* Green for points added */
+      font-size: 1.1em;
+    }
+
+    .log-points-negative {
+      font-weight: bold;
+      color: #e74c3c; /* Red if points were ever subtracted */
+      font-size: 1.1em;
+    }
+
+    .log-item:last-child { border-bottom: none; }
+
+    .no-points {
+      padding: 20px;
+      text-align: center;
+      color: #999;
+      font-style: italic;
+    }
     
     /* Match the score text color to the house border when leading */
     .house.leader .score {
       color: inherit; /* Takes the color from the card's border/text logic */
-    }
-
-    /* The Crown Icon itself (hidden by default) */
-    .crown-icon {
-      position: absolute;
-      top: -30px; /* Adjust to move up/down */
-      left: -18px; /* Adjust to move left/right */
-      width: 45px;
-      height: 45px;
-      z-index: 20; /* Sit on top of everything */
-      transform: rotate(-25deg); /* Tilt left */
-      opacity: 0; /* Hidden by default */
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy entry */
-      pointer-events: none; /* Let clicks pass through to the card */
-    }
-
-    /* THE TRIGGER: Make it visible only on the leader card */
-    .house.leader .crown-icon {
-      opacity: 1;
-      transform: rotate(-25deg) scale(1); /* Ensure it's full size when visible */
-    }
-
-    /* Optional: A slight pop effect when it becomes leader */
-    .house.leader.updating .crown-icon {
-      transform: rotate(-25deg) scale(1.3);
     }
 
     .admin-login-btn {
@@ -240,7 +312,63 @@
     #logs-table td:last-child {
       text-align: right;
     }
-        
+
+    .logout-btn{
+      margin-top: 30px;
+       display:none; 
+       z-index: 1000; 
+       padding: 10px 15px; 
+       background: #ff4757; 
+       color: white; border: 
+       none; border-radius: 8px; 
+       cursor: pointer; 
+       font-weight: bold;
+       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                box-shadow 0.3s ease, 
+                background 0.3s ease;
+        will-change: transform;
+    }
+
+    .house.expanded .log-ticker {
+        opacity: 0 !important;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+    }
+
+    .log-ticker {
+      font-size: 0.90rem;
+      color: #666;
+      margin-left: 20px;
+      flex: 1;
+      opacity: 0; /* Hidden by default */
+      transition: opacity 0.3s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      pointer-events: none;
+    }
+
+    /* 🟢 Only show the ticker when NO house is expanded */
+    body:not(.drawer-open) .log-ticker {
+      opacity: 1;
+    }
+
+    /* Animation for the fade loop */
+    .fade-ticker {
+      animation: fadeLoop 4s infinite;
+    }
+
+    @keyframes fadeLoop {
+      0%, 100% { opacity: 0; transform: translateY(5px); }
+      10%, 90% { opacity: 1; transform: translateY(0); }
+    }
+
+    .logout-btn:hover{
+      transform: scale(1.05);
+    }
+   
 * {
     -webkit-tap-highlight-color: transparent;
   }
@@ -248,7 +376,7 @@
   @media (max-width: 600px) {
 
     h1 {
-      font-size: 2em;
+      font-size: 1.8em;
       margin: 25px 0 15px;
     }
 
@@ -258,27 +386,60 @@
     }
 
     .house {
-      padding: 12px 14px;
       border-radius: 16px;
     }
 
     .house img {
-      width: 45px;
-      height: 45px;
-      margin-right: 12px;
+      width: 35px;
+      height: 35px;
+      margin-right: 20px;
     }
 
     .house .name {
-      font-size: 1.1em;
+      font-size: 1em;
     }
 
     .house .score {
-      font-size: 1.3em;
+      font-size: 1em;
       width: 50px;
     }
 
     .leader {
-      transform: scale(1.02); /* smaller zoom for mobile */
+      transform: scale(1.02);
+    }
+
+       /* Specific glows based on house color */
+    .house[data-house="red"].leader {
+      background: #fff5f5 !important;
+      border: 2px solid #ff4d4d;
+      box-shadow: 0 10px 25px rgba(255, 77, 77, 0.2);
+    }
+    
+    .house[data-house="blue"].leader {
+      background: #f0f7ff !important;
+      border: 2px solid #0077ff;
+      box-shadow: 0 10px 25px rgba(0, 119, 255, 0.2);
+    }
+    
+    .house[data-house="green"].leader {
+      background: #f2fff5 !important;
+      border: 2px solid #2ecc71;
+      box-shadow: 0 10px 25px rgba(46, 204, 113, 0.2);
+    }
+    
+    .house[data-house="yellow"].leader {
+      background: #fffdf0 !important;
+      border: 2px solid #f1c40f;
+      box-shadow: 0 10px 25px rgba(241, 196, 15, 0.2);
+    }
+    
+    /* Match the score text color to the house border when leading */
+    .house.leader .score {
+      color: inherit; /* Takes the color from the card's border/text logic */
+    }
+
+    .house:hover{
+      transform: none;
     }
 
     .admin-login-btn {
@@ -292,22 +453,26 @@
       width: 20px;
       height: 20px;
     }
+    
+    .log-list {
+      padding: 0px 20px;
+    }
 
-    .crown-icon {
-    width: 35px;
-    height: 35px;
-    top: -12px;
-    left: -12px;
-  }
-  }
+     .log-reason {
+      font-size: 0.8em;
+    }
 
-  @media (min-width: 1200px) {
-  h1 {
-    font-size: 3.5em;
-  }
-  .leaderboard {
-    max-width: 900px;
-  }
+    .log-points, .log-points-negative {
+      font-size: 0.8em;
+    }
+
+    .log-ticker {
+      font-size: 0.60em;
+      margin-left: 10px;
+    }
+
+    .skeleton-img { width: 35px; height: 35px; border-radius: 10%; }
+    .skeleton-name { width: 150px; height: 25px; margin-left: 10px; }
+    .skeleton-score { width: 35px; height: 35px; border-radius: 10%; }
 
   }
-
