@@ -8,7 +8,8 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
+  <div class="prototype-bg"></div>
+  
   <div id="auth-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(240, 244, 248, 0.95); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;">
     <h2 style="color: #333; margin-bottom: 20px;">OIS Leaderboard</h2>
     <button id="login-btn" style="padding: 15px 30px; font-size: 1.2em; background: #0077ff; color: white; border: none; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,119,255,0.3);">
@@ -57,18 +58,28 @@
     </div>
   </div>
 
-   <button id="logout-btn" class="logout-btn">
-    Sign Out
-  </button>
+  <div class="admin-action-pill" id="user-pill">
 
-  <a href="admin.html" id=admin-btn class="admin-login-btn" title="Admin Login" style="display: none;">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-    <circle cx="12" cy="7" r="4"></circle>
-  </svg>
-  </a>
+    <div class="pill-content">
+      <div class="profile-header">
+        <div class="pill-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <div class="user-email" id="pill-email">user@oakbridge.edu.my</div>
+      </div>
 
-  
+      <div class="pill-menu">
+        <a href="admin.html" id="pill-admin-link" class="action-row hidden">Admin Panel</a>
+        <span id="pill-logout-link" class="action-row logout">Sign Out</span>
+      </div>
+
+    </div>
+  </div>
+
+
   
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
