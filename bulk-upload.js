@@ -53,9 +53,9 @@ async function handleBulkUpload() {
                             houseName,
                             addedPoints,
                             category,
-                            rankText: row.Rank || "Entry",
-                            eventType: row.EventType || "Bulk",
-                            comment: row.Comment || "Bulk Upload"
+                            rankText: row.Rank || "",
+                            eventType: row.EventType || "",
+                            comment: row.Comment || ""
                         });
                     }
                 });
@@ -141,4 +141,5 @@ function downloadCSVTemplate() {
         link.click();
         document.body.removeChild(link);
     });
+
 }
