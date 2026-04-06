@@ -149,10 +149,14 @@ function updateScore() {
     const categorySelect = document.getElementById('category-select');
     const comment = document.getElementById('comment').value || "No comment provided"; // Handle empty comment
     const rankSelect = document.getElementById('ranking-select');
+    const submitBtn = document.getElementById('submit-btn');
     let category = categorySelect.value;
     let addedPoints = 0;
     let rankText = "";
     let eventType = "";
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = "Processing...";
 
     // Logic for Bad Behaviour
     if (category === "Bad Behaviour") {
@@ -227,7 +231,8 @@ function updateScore() {
         document.getElementById('ranking-select').selectedIndex = 0;
         document.getElementById('event-type-select').selectedIndex = 0;
         categorySelect.selectedIndex = 0;
-        toggleCustomCategory();
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = "Submit Update";
     }
     });
 }
@@ -283,53 +288,79 @@ function expandLogs() {
     }
 }
 
+let currentPage = 1;
+const logsPerPage = 10;
+let totalLogsArray = []; // To store the logs for pagination math
+
 function startLogsListener() {
-    const logsRef = db.ref('Logs');
-
-    // 1. First, check the total count of logs to see if we even need a button
-    logsRef.on('value', totalSnapshot => {
-    const totalCount = totalSnapshot.numChildren();
-    const readMoreContainer = document.getElementById('read-more-container');
-
-    // If total logs in DB is more than what we are currently displaying, show button
-    if (totalCount > displayLimit) {
-        readMoreContainer.classList.remove('hidden');
-    } else {
-        readMoreContainer.classList.add('hidden');
-    }
-    });
-
-    // Listen for the last 5 logs
-    logsRef.orderByChild('unixTimestamp').limitToLast(displayLimit).on('value', snapshot => {
-    const logsBody = document.getElementById('logs-body');
-    logsBody.innerHTML = ""; // Clear current table
-
-    const logs = [];
+  db.ref('Logs').on('value', snapshot => {
+    totalLogsArray = [];
     snapshot.forEach(child => {
-        // 1. Get the data fields (houseName, pointsAdded, etc.)
-        const data = child.val();
-        // 2. Get the UNIQUE ID (the key like -Njk123...)
-        const id = child.key;
-        // 3. Combine them into one object and push to our array
-        logs.push({ id: id, ...data });
+      totalLogsArray.push({ id: child.key, ...child.val() });
     });
 
-    // Reverse so the newest is at the top
-    logs.reverse().forEach(log => {
-        const row = logsBody.insertRow();
-        
-        // Column 1: Time
-        const timeCell = row.insertCell(0);
-        const AddedAt = new Date(log.unixTimestamp).toLocaleString([], {year:"numeric", month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'});
-        timeCell.innerHTML = `${AddedAt}`;
+    // Sort newest first
+    totalLogsArray.sort((a, b) => b.unixTimestamp - a.unixTimestamp);
 
+    renderLogTable();
+    renderPaginationControls();
+  });
+}
 
-        // Column 2: Description
-        const descCell = row.insertCell(1);
-        //const pointText = log.pointsAdded > 0 ? `added ${log.pointsAdded}` : `removed ${Math.abs(log.pointsAdded)}`;
-        const rankInfo = log.rankText ? `${log.rankText}` : "";
+let searchTerm = "";
 
-        if (log.rankText === "Penalty")
+function handleSearch() {
+    searchTerm = document.getElementById('log-search').value.toLowerCase().trim();
+    currentPage = 1; // Always go back to page 1 on search
+    renderLogTable();
+    renderPaginationControls();
+}
+
+function getFilteredLogs() {
+    if (!searchTerm) return totalLogsArray;
+
+    return totalLogsArray.filter(log => {
+        const searchableText = [
+            log.houseName,
+            log.category,
+            log.rankText,
+            log.comment,
+            log.adminEmail
+        ].join(' ').toLowerCase();
+
+        return searchableText.includes(searchTerm);
+    });
+}
+
+function renderLogTable() {
+    const container = document.querySelector('.logs-container');
+    if (container) {
+        container.scrollTop = 0; // Reset scroll to top on page change
+    }
+
+    const logsBody = document.getElementById('logs-body');
+    logsBody.innerHTML = "";
+
+    // USE FILTERED LOGS HERE
+    const filteredLogs = getFilteredLogs();
+
+    // MATH: Calculate which 10 logs to show
+    // Page 1: 0 to 10 | Page 2: 10 to 20...
+    const start = (currentPage - 1) * logsPerPage;
+    const end = start + logsPerPage;
+    const visibleLogs = filteredLogs.slice(start, end);
+
+    visibleLogs.forEach(log => {
+    const row = logsBody.insertRow();
+    
+    // Time Column
+    const time =  new Date(log.unixTimestamp).toLocaleString([], {year:"numeric", month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'});
+    row.insertCell(0).innerHTML = `${time}`;
+
+    const descCell = row.insertCell(1);
+    const rankInfo = log.rankText ? `${log.rankText}` : "";
+
+    if (log.rankText === "Penalty" || log.pointsAdded < 0)
         {
         descCell.innerHTML = `
             <span class="log-house">${log.houseName}</span> loses <span class="log-house">${Math.abs(log.pointsAdded)} points </span> for receiving a
@@ -351,20 +382,74 @@ function startLogsListener() {
             <br><small style="color:#888;">"${log.comment}" — ${log.adminEmail}</small>
         `;
         }
-        
+    // Delete Icon Column
+    const actionCell = row.insertCell(2);
+    actionCell.innerHTML = `<button class="icon-btn" onclick="deleteLog('${log.id}', ${JSON.stringify(log).replace(/"/g, '&quot;')})">
+      <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+    </button>`;
+  });
+}
 
-        const actionCell = row.insertCell(2);
-        const btn = document.createElement('button');
-        btn.className = "icon-btn";
-        btn.title = "Delete and Revert Points";
-        btn.innerHTML = `
-        <svg viewBox="0 0 24 24">
-            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-        </svg>`;
-        btn.onclick = () => deleteLog(log.id, log);
-        actionCell.appendChild(btn)
-    });
-    });
+function renderPaginationControls() {
+  const filteredLogs = getFilteredLogs();
+  const totalPages = Math.ceil(filteredLogs.length / logsPerPage);
+  
+  const pageNumbersDiv = document.getElementById('page-numbers');
+  pageNumbersDiv.innerHTML = "";
+
+  // Disable Prev/Next buttons at boundaries
+  document.getElementById('prev-page').disabled = (currentPage === 1);
+  document.getElementById('next-page').disabled = (currentPage === totalPages || totalPages === 0);
+
+  // If there is only 1 or 0 pages, don't show numbers
+  if (totalPages <= 1) return;
+
+  const pages = [];
+
+  // --- SLIDING WINDOW LOGIC ---
+  if (totalPages <= 7) {
+    // If we have 7 or fewer pages, just show them all
+    for (let i = 1; i <= totalPages; i++) pages.push(i);
+  } else {
+    // More than 7 pages? Time to truncate with "..."
+    
+    if (currentPage <= 4) {
+      // Near the start: show 1 2 3 4 5 ... [Last]
+      pages.push(1, 2, 3, 4, 5, '...', totalPages);
+    } else if (currentPage >= totalPages - 3) {
+      // Near the end: show [1] ... 16 17 18 19 20
+      pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+    } else {
+      // In the middle: show [1] ... 9 [10] 11 ... [20]
+      pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+    }
+  }
+
+  // --- RENDER THE BUTTONS ---
+  pages.forEach(p => {
+    if (p === '...') {
+      const span = document.createElement('span');
+      span.innerText = '...';
+      span.className = 'page-ellipsis';
+      pageNumbersDiv.appendChild(span);
+    } else {
+      const btn = document.createElement('span');
+      btn.innerText = p;
+      btn.className = `page-num ${p === currentPage ? 'active' : ''}`;
+      btn.onclick = () => {
+        currentPage = p;
+        renderLogTable();
+        renderPaginationControls();
+      };
+      pageNumbersDiv.appendChild(btn);
+    }
+  });
+}
+
+function changePage(direction) {
+  currentPage += direction;
+  renderLogTable();
+  renderPaginationControls();
 }
 
 function deleteLog(logId, logData) {
