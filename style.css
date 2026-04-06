@@ -424,7 +424,7 @@ body {
       text-align: right;
     }
 
-    .house.expanded .log-ticker {
+    .house.expanded .ticker-text {
         opacity: 0 !important;
         pointer-events: none;
         transition: opacity 0.2s ease;
@@ -436,10 +436,19 @@ body {
 
     .log-ticker {
       font-size: 0.85rem;
-      color: #666;
-      margin-left: 20px;
-      flex: 1;
-      opacity: 0; /* Hidden by default */
+      color: #777;
+      margin-top: 2px;
+      white-space: nowrap; /* single line */
+      overflow: hidden; 
+      width: 100%;
+      position: relative;
+      transition: opacity 0.2s ease;
+    }
+
+    .ticker-text {
+      display: inline-block;
+      padding-left: 0;
+      /* 🟢 This animation will only be triggered if the text is long */
       transition: opacity 0.3s ease;
     }
 
@@ -551,6 +560,9 @@ body {
       transform: none;
     }
 
+    .house.expanded .info:has(.name.shifted) {
+      transform:translateY(6px);
+    }
     
     .log-list {
       padding: 0px 20px;
@@ -603,5 +615,4 @@ body {
     .action-row{
       font-size: 0.65em;
     }
-
   }
