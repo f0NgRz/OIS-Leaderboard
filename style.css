@@ -356,6 +356,15 @@ body {
       background: #fff1f0; /* Soft red darken for logout */
     }
 
+       .credit{
+      z-index: -10;
+      position: relative;
+      bottom: 0;
+      font-size: 12px;
+      margin-top: 25px;
+      opacity: 25%;
+    }
+
     @keyframes lift-and-slide {
       0% {
         transform: translateY(var(--travel-dist)) scale(1);
