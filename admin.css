@@ -608,7 +608,7 @@ body {
 
   /* Prevent iOS from zooming in when tapping inputs */
   input, select, textarea, button {
-    font-size: 14px !important;
+    font-size: 14px;
   }
 
   /* Back button fix: Move it to a more natural spot */
@@ -682,7 +682,19 @@ body {
       font-size: 0.65em;
     }
 
-    .page-num {
-      font-size: 0.85em
+      .page-num {
+      padding: 5px 8px;
+      font-size: 0.7em
     }
+  
+   .pagination-bar button {
+     padding: 5px 8px;
+    font-size: 0.7em;
+     white-space: nowrap;
+    }
+  
+  .page-ellipsis {
+      padding: 2px 2px;
+    }
+}
 }
