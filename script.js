@@ -13,6 +13,7 @@ const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
 const provider = new firebase.auth.GoogleAuthProvider();
+const analytics = firebase.analytics();
 
 // Forces the login picker to only show your school domain accounts
 provider.setCustomParameters({ hd: "oakbridge.edu.my" }); 
