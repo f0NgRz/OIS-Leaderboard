@@ -368,3 +368,24 @@ function animateCards(sortedEls) {
         sortedEls[0].classList.add('leader');
     });
 }
+
+
+// Admin button tap for IOS
+document.querySelectorAll('.admin-action-pill').forEach(pill => {
+    pill.addEventListener('click', function(e) {
+        // If the device doesn't support hover (like an iPhone)
+        if (window.matchMedia("(hover: none)").matches) {
+            // Toggle the 'active' class to expand/collapse
+            this.classList.toggle('active');
+        }
+    });
+});
+
+// Optional: Close the pill if user clicks anywhere else on the screen
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.admin-action-pill')) {
+        document.querySelectorAll('.admin-action-pill').forEach(pill => {
+            pill.classList.remove('active');
+        });
+    }
+});
