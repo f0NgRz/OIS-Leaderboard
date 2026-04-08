@@ -597,7 +597,7 @@ body {
       height: 35px;
     }
 
-    .admin-action-pill:hover{
+    .admin-action-pill:active{
       width: 250px;
     }
 
@@ -605,7 +605,7 @@ body {
       min-width: 35px;
     }
 
-    .admin-action-pill:hover .pill-icon{
+    .admin-action-pill:active .pill-icon{
       margin-left: 10px;
       margin-right: 10px;
     }
