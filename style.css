@@ -356,10 +356,10 @@ body {
 
        .credit{
       z-index: -10;
-      position: relative;
+      position: absolute;
       bottom: 0;
       font-size: 12px;
-      margin-top: 25px;
+      margin-bottom: 12px;
       opacity: 25%;
     }
 
