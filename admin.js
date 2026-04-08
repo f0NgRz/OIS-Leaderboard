@@ -628,3 +628,26 @@ logoutBtn.addEventListener('click', () => {
         });
     }
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const pill = document.querySelector('.admin-action-pill');
+
+  pill.addEventListener('click', function(e) {
+    // Only intercept if we are on a touch device 
+    // This prevents double-triggering on desktop
+    if (window.matchMedia("(pointer: coarse)").matches) {
+      // If clicking the row links, let them work
+      if (e.target.closest('.action-row')) return;
+      
+      e.preventDefault();
+      this.classList.toggle('expanded');
+    }
+  });
+
+  // Close pill when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!pill.contains(e.target)) {
+      pill.classList.remove('expanded');
+    }
+  });
+});
