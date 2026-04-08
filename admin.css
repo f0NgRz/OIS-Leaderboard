@@ -41,7 +41,8 @@ body {
     }
 
     /* 🟢 Hover State: Expand */
-    .admin-action-pill:hover {
+    .admin-action-pill:hover,
+    .admin-action-pill.expanded {
       display: grid;
       width: 300px;
       height: auto;
@@ -64,7 +65,8 @@ body {
     }
 
     /* Move icon left on hover */
-    .admin-action-pill:hover .pill-icon {
+    .admin-action-pill:hover .pill-icon,
+    .admin-action-pill.expanded .pill-icon {
       transform: translateX(-5px);
     }
 
@@ -75,23 +77,24 @@ body {
       flex-direction: column;
     }
 
-    .admin-action-pill:hover .pill-content {
+    .admin-action-pill:hover .pill-content,
+    .admin-action-pill.expanded .pill-content {
       opacity: 1;
       transition-delay: 0.2s; /* Wait for expansion to start */
     }
 
-    .admin-action-pill:not(:hover) .profile-header {
-      margin-bottom: 0px;
-      border-bottom: none;
-      padding-bottom: 0px;
-    }
+  .admin-action-pill:not(:hover):not(.expanded) .profile-header {
+    margin-bottom: 0px;
+    border-bottom: none;
+    padding-bottom: 0px;
+  }
 
-    .admin-action-pill:not(:hover) .pill-menu {
-      display: none; 
-    }
-    .admin-action-pill:not(:hover) .user-email{
-      display: none; 
-    }
+  .admin-action-pill:not(:hover):not(.expanded) .pill-menu {
+    display: none; 
+  }
+  .admin-action-pill:not(:hover):not(.expanded) .user-email{
+    display: none; 
+  }
 
     .profile-header {
       display: flex;
@@ -656,7 +659,8 @@ body {
       height: 35px;
     }
 
-    .admin-action-pill:hover{
+    .admin-action-pill:hover,
+    .admin-action-pill.expanded{
       width: 250px;
     }
 
@@ -664,10 +668,12 @@ body {
       min-width: 35px;
     }
 
-    .admin-action-pill:hover .pill-icon{
+    .admin-action-pill:hover .pill-icon,
+    .admin-action-pill.expanded .pill-icon{
       margin-left: 10px;
       margin-right: 10px;
     }
+
 
     .pill-icon svg{
       width: 18px;
@@ -682,7 +688,7 @@ body {
       font-size: 0.65em;
     }
 
-      .page-num {
+    .page-num {
       padding: 5px 8px;
       font-size: 0.7em
     }
@@ -697,4 +703,4 @@ body {
       padding: 2px 2px;
     }
 }
-}
+
