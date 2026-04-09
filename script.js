@@ -169,10 +169,26 @@ function startLeaderboard() {
                 currentData[key] = data[key].score;
             });
 
-            // Initial Sort
+             // Intial sort
+            // 1. Sort elements by score for visual order
             const sorted = [...houseEls].sort((a, b) => data[b.dataset.house].score - data[a.dataset.house].score);
             sorted.forEach((el, i) => el.style.order = i);
-            sorted[0].classList.add('leader');
+
+            // 2. Find the highest score currently on the board
+            const highestScore = Math.max(...Object.values(data).map(h => h.score));
+
+            // 3. Apply 'leader' class to ANY house that has that highest score
+            houseEls.forEach(el => {
+                const houseScore = data[el.dataset.house].score;
+                
+                // Remove class first to reset
+                el.classList.remove('leader'); 
+                
+                // Add if it matches the top score
+                if (houseScore === highestScore && highestScore > 0) {
+                    el.classList.add('leader');
+                }
+            });
 
             initialized = true;
             return;
@@ -200,7 +216,7 @@ function startLeaderboard() {
         if (needsReorder) {
             setTimeout(() => {
                 const sorted = [...houseEls].sort((a, b) => data[b.dataset.house].score - data[a.dataset.house].score);
-                animateCards(sorted);
+                animateCards(sorted, data);
                 setTimeout(() => {
                     if (activeHouseEl) activeHouseEl.classList.remove('updating');
                 }, 600);
@@ -338,9 +354,11 @@ function animateScore(el, from, to) {
     requestAnimationFrame(step);
 }
 
-function animateCards(sortedEls) {
+function animateCards(sortedEls, data) { // 🟢 Added 'data' as an argument
     const firstPositions = new Map();
     houseEls.forEach(el => firstPositions.set(el, el.getBoundingClientRect().top));
+    
+    // Re-order the elements in the flex/grid container
     sortedEls.forEach((el, i) => el.style.order = i);
 
     requestAnimationFrame(() => {
@@ -365,28 +383,127 @@ function animateCards(sortedEls) {
                 }
             }
         });
-        houseEls.forEach(el => el.classList.remove('leader'));
-        sortedEls[0].classList.add('leader');
+
+        // --- 🟢 NEW TIE-LEADER LOGIC ---
+        
+        // 1. Get all scores from the data object
+        const scores = Object.values(data).map(h => h.score);
+        
+        // 2. Find the maximum score
+        const highestScore = Math.max(...scores);
+
+        // 3. Apply 'leader' class to everyone who matches that score
+        houseEls.forEach(el => {
+            const houseId = el.dataset.house;
+            const currentScore = data[houseId].score;
+
+            // Remove it first to reset the state
+            el.classList.remove('leader'); 
+
+            // Add it if they are tied for the top (and score is > 0)
+            if (currentScore === highestScore && highestScore > 0) {
+            el.classList.add('leader'); 
+                
+            }
+        });
     });
 }
 
-
-// Admin button tap for IOS
-document.querySelectorAll('.admin-action-pill').forEach(pill => {
-    pill.addEventListener('click', function(e) {
-        // If the device doesn't support hover (like an iPhone)
-        if (window.matchMedia("(hover: none)").matches) {
-            // Toggle the 'active' class to expand/collapse
-            this.classList.toggle('active');
-        }
-    });
+// 1. Toggle Sidebar
+document.getElementById('mvp-tab').addEventListener('click', () => {
+    document.getElementById('mvp-sidebar').classList.toggle('open');
+    if (document.getElementById('mvp-sidebar').classList.contains('open')) {
+        updateMVPList();
+    }
 });
 
-// Optional: Close the pill if user clicks anywhere else on the screen
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('.admin-action-pill')) {
-        document.querySelectorAll('.admin-action-pill').forEach(pill => {
-            pill.classList.remove('active');
-        });
+// 2. Extract Names from Comments
+function updateMVPList() {
+    const listContainer = document.getElementById('mvp-list');
+    if (!allLogs || !listContainer) return;
+
+    listContainer.innerHTML = ""; // Clear list
+
+    // 1. Group and Accumulate points by Student (Comment) + House
+    const studentStats = {};
+
+    Object.values(allLogs).forEach(log => {
+        const studentName = log.comment?.trim();
+        const houseId = log.houseId;
+        const points = parseInt(log.pointsAdded) || 0;
+        const houseName = log.houseName;
+
+        // Skip "No comment" or empty logs
+        if (!studentName || studentName === "No comment provided") return;
+
+        // Create a unique key for student + house combo
+        const key = `${studentName}_${houseId}`;
+
+        if (!studentStats[key]) {
+            studentStats[key] = {
+                name: studentName,
+                houseId: houseId,
+                houseName: houseName,
+                totalPoints: 0
+            };
+        }
+        studentStats[key].totalPoints += points;
+    });
+
+    // 2. Find the top student for EACH house
+    const houseMVPs = {}; // Format: { "house1": { studentObj } }
+
+    Object.values(studentStats).forEach(stat => {
+        const currentBest = houseMVPs[stat.houseId];
+
+        // If no MVP for this house yet, or this student has more points
+        if (!currentBest || stat.totalPoints > currentBest.totalPoints) {
+            houseMVPs[stat.houseId] = stat;
+        }
+    });
+
+    // 3. Render the MVPs to the Sidebar
+    const finalMVPs = Object.values(houseMVPs).sort((a, b) => b.totalPoints - a.totalPoints);
+
+    if (finalMVPs.length === 0) {
+        listContainer.innerHTML = "<p class='empty-msg'>Accumulating data...</p>";
+        return;
     }
+
+    finalMVPs.forEach(mvp => {
+        // Find house name for the label (assuming you have a house name map)
+        const item = document.createElement('div');
+        item.className = `mvp-item mvp-${mvp.houseId}`;
+        item.innerHTML = `
+            <div class="mvp-info">
+                <span class="mvp-house-label">${mvp.houseName.toUpperCase()}</span>
+                <span class="mvp-name">${mvp.name}</span>
+            </div>
+            <div class="mvp-score">${mvp.totalPoints} pts</div>
+        `;
+        listContainer.appendChild(item);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const pill = document.querySelector('.admin-action-pill');
+
+  pill.addEventListener('click', function(e) {
+    // Only intercept if we are on a touch device 
+    // This prevents double-triggering on desktop
+    if (window.matchMedia("(pointer: coarse)").matches) {
+      // If clicking the row links, let them work
+      if (e.target.closest('.action-row')) return;
+      
+      e.preventDefault();
+      this.classList.toggle('expanded');
+    }
+  });
+
+  // Close pill when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!pill.contains(e.target)) {
+      pill.classList.remove('expanded');
+    }
+  });
 });

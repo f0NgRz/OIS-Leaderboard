@@ -12,6 +12,7 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
+
 const houseEls = Array.from(document.querySelectorAll('.house'))
 
 let eventTypeData = {}; // Global variable to store points from DB
@@ -169,8 +170,8 @@ function updateScore() {
     // Logic for Bad Behaviour
     if (category === "Bad Behaviour") {
         const deduction = parseInt(document.getElementById('deduction-input').value);
-        if (isNaN(deduction) || deduction <= 0 || deduction > 100) {
-            return handleError("Please enter a deduction between 1 and 100.");
+        if (isNaN(deduction) || deduction < 0 || deduction > 100) {
+            return handleError("Please enter a deduction between 0 and 100.");
         }
         addedPoints = -deduction;
         rankText = "Penalty";
@@ -180,8 +181,8 @@ function updateScore() {
     else {
         if (rankSelect.value === "Custom Point") {
             const customVal = parseInt(document.getElementById('custom-point-input').value);
-            if (isNaN(customVal) || customVal <= 0 || customVal > 100) {
-                return handleError("Please enter custom points between 1 and 100.");
+            if (isNaN(customVal) || customVal < 0 || customVal > 100) {
+                return handleError("Please enter custom points between 0 and 100.");
             }
             addedPoints = customVal;
             rankText = ""; 
@@ -206,8 +207,6 @@ function updateScore() {
     
     let oldScore = 0;
     const houseRef = db.ref(`Houses/${houseId}`);
-
-    if (isNaN(addedPoints) || addedPoints < -100 || addedPoints > 100) return handleError("The added points is invalid");
 
     houseRef.child('score').transaction(current => {
         oldScore = current || 0;
@@ -283,12 +282,29 @@ function startLeaderboardListener() {
         `;
     });
 
-    const sorted = houseIds.slice().sort((a,b) => (data[b]?.score || 0) - (data[a]?.score || 0));
-    sorted.forEach((id, i) => {
-        document.getElementById(id).style.order = i;
-        document.getElementById(id).classList.remove('leader');
-    });
-    document.getElementById(sorted[0]).classList.add('leader');
+    // 1. Sort the house IDs by score
+        const sorted = houseIds.slice().sort((a,b) => (data[b]?.score || 0) - (data[a]?.score || 0));
+
+        // 2. Find the highest score currently in the data
+        const scores = Object.values(data).map(h => h.score || 0);
+        const highestScore = Math.max(...scores);
+
+        sorted.forEach((id, i) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+
+            // Set the flex/grid visual order
+            el.style.order = i;
+
+            // 3. Remove leader class first to reset
+            el.classList.remove('leader');
+
+            // 4. Add leader class to ANY house tied for the highest score
+            // (Check highestScore > 0 so a reset board doesn't crown everyone)
+            if (data[id]?.score === highestScore && highestScore > 0) {
+                el.classList.add('leader');
+            }
+        });
     });
 }
 
