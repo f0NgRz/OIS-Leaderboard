@@ -169,10 +169,26 @@ function startLeaderboard() {
                 currentData[key] = data[key].score;
             });
 
-            // Initial Sort
+             // Intial sort
+            // 1. Sort elements by score for visual order
             const sorted = [...houseEls].sort((a, b) => data[b.dataset.house].score - data[a.dataset.house].score);
             sorted.forEach((el, i) => el.style.order = i);
-            sorted[0].classList.add('leader');
+
+            // 2. Find the highest score currently on the board
+            const highestScore = Math.max(...Object.values(data).map(h => h.score));
+
+            // 3. Apply 'leader' class to ANY house that has that highest score
+            houseEls.forEach(el => {
+                const houseScore = data[el.dataset.house].score;
+                
+                // Remove class first to reset
+                el.classList.remove('leader'); 
+                
+                // Add if it matches the top score
+                if (houseScore === highestScore && highestScore > 0) {
+                    el.classList.add('leader');
+                }
+            });
 
             initialized = true;
             return;
@@ -200,7 +216,7 @@ function startLeaderboard() {
         if (needsReorder) {
             setTimeout(() => {
                 const sorted = [...houseEls].sort((a, b) => data[b.dataset.house].score - data[a.dataset.house].score);
-                animateCards(sorted);
+                animateCards(sorted, data);
                 setTimeout(() => {
                     if (activeHouseEl) activeHouseEl.classList.remove('updating');
                 }, 600);
@@ -338,9 +354,11 @@ function animateScore(el, from, to) {
     requestAnimationFrame(step);
 }
 
-function animateCards(sortedEls) {
+function animateCards(sortedEls, data) { // 🟢 Added 'data' as an argument
     const firstPositions = new Map();
     houseEls.forEach(el => firstPositions.set(el, el.getBoundingClientRect().top));
+    
+    // Re-order the elements in the flex/grid container
     sortedEls.forEach((el, i) => el.style.order = i);
 
     requestAnimationFrame(() => {
@@ -365,28 +383,53 @@ function animateCards(sortedEls) {
                 }
             }
         });
-        houseEls.forEach(el => el.classList.remove('leader'));
-        sortedEls[0].classList.add('leader');
+
+        // --- 🟢 NEW TIE-LEADER LOGIC ---
+        
+        // 1. Get all scores from the data object
+        const scores = Object.values(data).map(h => h.score);
+        
+        // 2. Find the maximum score
+        const highestScore = Math.max(...scores);
+
+        // 3. Apply 'leader' class to everyone who matches that score
+        houseEls.forEach(el => {
+            const houseId = el.dataset.house;
+            const currentScore = data[houseId].score;
+
+            // Remove it first to reset the state
+            el.classList.remove('leader'); 
+
+            // Add it if they are tied for the top (and score is > 0)
+            if (currentScore === highestScore && highestScore > 0) {
+            el.classList.add('leader'); 
+                
+            }
+        });
     });
 }
 
 
-// Admin button tap for IOS
-document.querySelectorAll('.admin-action-pill').forEach(pill => {
-    pill.addEventListener('click', function(e) {
-        // If the device doesn't support hover (like an iPhone)
-        if (window.matchMedia("(hover: none)").matches) {
-            // Toggle the 'active' class to expand/collapse
-            this.classList.toggle('active');
-        }
-    });
-});
+//button for IOS
+document.addEventListener('DOMContentLoaded', () => {
+  const pill = document.querySelector('.admin-action-pill');
 
-// Optional: Close the pill if user clicks anywhere else on the screen
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('.admin-action-pill')) {
-        document.querySelectorAll('.admin-action-pill').forEach(pill => {
-            pill.classList.remove('active');
-        });
+  pill.addEventListener('click', function(e) {
+    // Only intercept if we are on a touch device 
+    // This prevents double-triggering on desktop
+    if (window.matchMedia("(pointer: coarse)").matches) {
+      // If clicking the row links, let them work
+      if (e.target.closest('.action-row')) return;
+      
+      e.preventDefault();
+      this.classList.toggle('expanded');
     }
+  });
+
+  // Close pill when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!pill.contains(e.target)) {
+      pill.classList.remove('expanded');
+    }
+  });
 });
