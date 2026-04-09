@@ -409,82 +409,8 @@ function animateCards(sortedEls, data) { // 🟢 Added 'data' as an argument
     });
 }
 
-// 1. Toggle Sidebar
-document.getElementById('mvp-tab').addEventListener('click', () => {
-    document.getElementById('mvp-sidebar').classList.toggle('open');
-    if (document.getElementById('mvp-sidebar').classList.contains('open')) {
-        updateMVPList();
-    }
-});
 
-// 2. Extract Names from Comments
-function updateMVPList() {
-    const listContainer = document.getElementById('mvp-list');
-    if (!allLogs || !listContainer) return;
-
-    listContainer.innerHTML = ""; // Clear list
-
-    // 1. Group and Accumulate points by Student (Comment) + House
-    const studentStats = {};
-
-    Object.values(allLogs).forEach(log => {
-        const studentName = log.comment?.trim();
-        const houseId = log.houseId;
-        const points = parseInt(log.pointsAdded) || 0;
-        const houseName = log.houseName;
-
-        // Skip "No comment" or empty logs
-        if (!studentName || studentName === "No comment provided") return;
-
-        // Create a unique key for student + house combo
-        const key = `${studentName}_${houseId}`;
-
-        if (!studentStats[key]) {
-            studentStats[key] = {
-                name: studentName,
-                houseId: houseId,
-                houseName: houseName,
-                totalPoints: 0
-            };
-        }
-        studentStats[key].totalPoints += points;
-    });
-
-    // 2. Find the top student for EACH house
-    const houseMVPs = {}; // Format: { "house1": { studentObj } }
-
-    Object.values(studentStats).forEach(stat => {
-        const currentBest = houseMVPs[stat.houseId];
-
-        // If no MVP for this house yet, or this student has more points
-        if (!currentBest || stat.totalPoints > currentBest.totalPoints) {
-            houseMVPs[stat.houseId] = stat;
-        }
-    });
-
-    // 3. Render the MVPs to the Sidebar
-    const finalMVPs = Object.values(houseMVPs).sort((a, b) => b.totalPoints - a.totalPoints);
-
-    if (finalMVPs.length === 0) {
-        listContainer.innerHTML = "<p class='empty-msg'>Accumulating data...</p>";
-        return;
-    }
-
-    finalMVPs.forEach(mvp => {
-        // Find house name for the label (assuming you have a house name map)
-        const item = document.createElement('div');
-        item.className = `mvp-item mvp-${mvp.houseId}`;
-        item.innerHTML = `
-            <div class="mvp-info">
-                <span class="mvp-house-label">${mvp.houseName.toUpperCase()}</span>
-                <span class="mvp-name">${mvp.name}</span>
-            </div>
-            <div class="mvp-score">${mvp.totalPoints} pts</div>
-        `;
-        listContainer.appendChild(item);
-    });
-}
-
+//button for IOS
 document.addEventListener('DOMContentLoaded', () => {
   const pill = document.querySelector('.admin-action-pill');
 
