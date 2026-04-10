@@ -17,8 +17,6 @@ body {
       height: 100%;
       z-index: -1;
       background-image: url('prototype-bg.png');
-      background-repeat: repeat;
-      opacity: 0.1;
       pointer-events: none; /* Allows you to click things 'through' the image */
     }
 
