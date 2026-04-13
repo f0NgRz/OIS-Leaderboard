@@ -321,7 +321,15 @@ function runTicker() {
         tickerText.style.transform = "translateX(0)";
 
         void ticker.offsetWidth;  //FORCE REFLOW: This tells the browser "Reset the styles NOW"
-        tickerText.innerText = `${rank} in ${log.category}${logComment}`;
+      
+        const isPenalty = log.rankText === 'Penalty' || log.pointsAdded < 0;
+        
+        if (isPenalty) {
+            tickerText.innerText = `${rank}${logComment}`;
+        }
+        else{
+            tickerText.innerText = `${rank} in ${log.category}${logComment}`;
+        }
         ticker.classList.add('fade-ticker');
 
         setTimeout(() => {
