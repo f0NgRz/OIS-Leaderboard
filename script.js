@@ -243,7 +243,7 @@ function renderHouseLogs(el, houseId) {
         // 1. Logic for Custom Points (Empty RankText) or Standard Win
         let description;
         if (isPenalty) {
-            description = `<strong>Penalty</strong> for <strong>${log.category}</strong>`;
+            description = `<strong>Penalty</strong>`;
         } else if (!log.rankText || log.rankText === "") {
             // Format for Custom Points: "Gains X points in Category"
             description = `In <strong>${log.category}</strong>`;
