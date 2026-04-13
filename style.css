@@ -482,7 +482,7 @@ body {
 
     /* Animation for the fade loop */
     .fade-ticker {
-      animation: fadeLoop 4s infinite;
+      animation: fadeLoop 4s;
     }
 
     @keyframes fadeLoop {
