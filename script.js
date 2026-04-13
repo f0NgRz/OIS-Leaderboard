@@ -262,9 +262,7 @@ function renderHouseLogs(el, houseId) {
 
         return `
             <div class="log-item" style="display: flex; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid #f0f0f0;">
-                <div class="log-reason" style="color: #333;">
-                    ${description}${commentText}
-                </div>
+                <div class="log-reason" style="color: #333;">${description}${commentText}</div>
                 <div class="${isPenalty ? 'log-points-negative' : 'log-points'}" style="font-weight:bold; color:${isPenalty ? '#e74c3c' : '#2ecc71'}">
                     ${pointsDisplay}
                 </div>
