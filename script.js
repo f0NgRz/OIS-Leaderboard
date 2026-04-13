@@ -243,7 +243,7 @@ function renderHouseLogs(el, houseId) {
         // 1. Logic for Custom Points (Empty RankText) or Standard Win
         let description;
         if (isPenalty) {
-            description = `<strong>Penalty</strong> for <strong>${log.category}</strong>`;
+            description = `<strong>Penalty</strong>`;
         } else if (!log.rankText || log.rankText === "") {
             // Format for Custom Points: "Gains X points in Category"
             description = `In <strong>${log.category}</strong>`;
@@ -262,9 +262,7 @@ function renderHouseLogs(el, houseId) {
 
         return `
             <div class="log-item" style="display: flex; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid #f0f0f0;">
-                <div class="log-reason" style="color: #333;">
-                    ${description}${commentText}
-                </div>
+                <div class="log-reason" style="color: #333;">${description}${commentText}</div>
                 <div class="${isPenalty ? 'log-points-negative' : 'log-points'}" style="font-weight:bold; color:${isPenalty ? '#e74c3c' : '#2ecc71'}">
                     ${pointsDisplay}
                 </div>
@@ -323,7 +321,15 @@ function runTicker() {
         tickerText.style.transform = "translateX(0)";
 
         void ticker.offsetWidth;  //FORCE REFLOW: This tells the browser "Reset the styles NOW"
-        tickerText.innerText = `${rank} in ${log.category}${logComment}`;
+      
+        const isPenalty = log.rankText === 'Penalty' || log.pointsAdded < 0;
+        
+        if (isPenalty) {
+            tickerText.innerText = `${rank}${logComment}`;
+        }
+        else{
+            tickerText.innerText = `${rank} in ${log.category}${logComment}`;
+        }
         ticker.classList.add('fade-ticker');
 
         setTimeout(() => {
