@@ -93,8 +93,6 @@ body {
     }
 
     .house.updating {
-      transform: scale(1.12);
-      z-index: 100;
       transform: scale(1.08);
       box-shadow: 0 20px 40px rgba(0,0,0,0.2);
       background: #fff; /* Keep background solid */
