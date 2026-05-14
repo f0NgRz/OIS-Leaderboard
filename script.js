@@ -1,13 +1,12 @@
 const firebaseConfig = {
-    apiKey: "AIzaSyBIIEQt0ryHNulKYNmfCliMywmSzzQuBls",
-    authDomain: "my-epic-database.firebaseapp.com",
-    databaseURL: "https://my-epic-database-default-rtdb.firebaseio.com",
-    projectId: "my-epic-database",
-    storageBucket: "my-epic-database.appspot.com",
-    messagingSenderId: "533989527206",
-    appId: "1:533989527206:web:d34c0a693e6f19dc43ae67"
+  apiKey: "AIzaSyDy7f5bnfNr7b9VE4XzUv2CPAnbJAXnGwU",
+  authDomain: "ois-leaderboard-87d79.firebaseapp.com",
+  projectId: "ois-leaderboard-87d79",
+  storageBucket: "ois-leaderboard-87d79.firebasestorage.app",
+  messagingSenderId: "682466996014",
+  appId: "1:682466996014:web:8de9ed2eb3082233ac94bf",
+  measurementId: "G-NS1FT50VWP"
 };
-
 // 1. Initialize (Using Compat/Namespaced Syntax)
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
