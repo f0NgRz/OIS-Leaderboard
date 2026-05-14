@@ -100,7 +100,7 @@ function handleCategoryChange() {
     customContainer.classList.toggle('hidden', category !== "Other");
 
     // 2. Handle Deduction vs Normal Scoring
-    if (category === "Bad Behaviour") {
+    if (category === "Penalty") {
     scoringSection.classList.add('hidden');
     deductionSection.classList.remove('hidden');
     } else {
@@ -167,8 +167,8 @@ function updateScore() {
     submitBtn.disabled = true;
     submitBtn.innerHTML = "Processing...";
 
-    // Logic for Bad Behaviour
-    if (category === "Bad Behaviour") {
+    // Logic for Penalty
+    if (category === "Penalty") {
         const deduction = parseInt(document.getElementById('deduction-input').value);
         if (isNaN(deduction) || deduction < 0 || deduction > 100) {
             return handleError("Please enter a deduction between 0 and 100.");
@@ -229,7 +229,7 @@ function updateScore() {
                 adminEmail: auth.currentUser.email
             });
             
-            alert(category === "Bad Behaviour" ? 
+            alert(category === "Penalty" ? 
                 `Success! deducted ${Math.abs(addedPoints)} points from ${houseName}` : 
                 `Success! added ${Math.abs(addedPoints)} points to ${houseName}`);
 
@@ -282,7 +282,7 @@ function startLeaderboardListener() {
         `;
     });
 
-    // 1. Sort the house IDs by score
+        // 1. Sort the house IDs by score
         const sorted = houseIds.slice().sort((a,b) => (data[b]?.score || 0) - (data[a]?.score || 0));
 
         // 2. Find the highest score currently in the data
@@ -392,7 +392,7 @@ function renderLogTable() {
     const descCell = row.insertCell(1);
     const rankInfo = log.rankText ? `${log.rankText}` : "";
 
-    if (log.rankText === "Penalty" || log.pointsAdded < 0)
+     if (log.rankText === "Penalty" || log.pointsAdded < 0)
         {
         descCell.innerHTML = `
             <span class="log-house">${log.houseName}</span> loses <span class="log-house">${Math.abs(log.pointsAdded)} points </span> for receiving a
@@ -453,7 +453,7 @@ function renderPaginationControls() {
       pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
     } else {
       // In the middle: show [1] ... 9 [10] 11 ... [20]
-      pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+      pages.push(1, '...', currentPage - 2,  currentPage - 1, currentPage, currentPage + 1, currentPage + 2,  '...', totalPages);
     }
   }
 
@@ -551,21 +551,21 @@ function startRecycleBinListener() {
         row.insertCell(1).innerHTML = `
             <strong>${item.houseName}</strong> loses <strong>${Math.abs(item.pointsAdded)} points </strong>
             for recieving a <strong>${item.rankText}</strong> due to <strong>${item.category}</strong>
-            <br><small> Deleted by — ${item.deletedBy}</small>
+            <br><small> ${item.comment} — ${item.deletedBy}</small>
         `;
         }
 
         else if (!item.rankText || item.rankText === "") {
         row.insertCell(1).innerHTML = `
             <strong>${item.houseName}</strong> gains <strong>${Math.abs(item.pointsAdded)} points </strong> in <strong>${item.category}</strong>
-            <br><small> Deleted by — ${item.deletedBy}</small>
+            <br><small> ${item.comment} — ${item.deletedBy}</small>
         `;
         }
         else{
         row.insertCell(1).innerHTML = `
             <strong>${item.houseName}</strong> gains <strong>${Math.abs(item.pointsAdded)} points </strong>
             for winning <strong>${item.rankText}</strong> in <strong>${item.category}</strong>
-            <br><small> Deleted by — ${item.deletedBy}</small>
+            <br><small> ${item.comment} — ${item.deletedBy}</small>
         `;
         }
         
