@@ -1,11 +1,11 @@
 const firebaseConfig = {
-  apiKey: "AIzaSyDy7f5bnfNr7b9VE4XzUv2CPAnbJAXnGwU",
-  authDomain: "ois-leaderboard-87d79.firebaseapp.com",
-  projectId: "ois-leaderboard-87d79",
-  storageBucket: "ois-leaderboard-87d79.firebasestorage.app",
-  messagingSenderId: "682466996014",
-  appId: "1:682466996014:web:8de9ed2eb3082233ac94bf",
-  measurementId: "G-NS1FT50VWP"
+    apiKey: "AIzaSyBIIEQt0ryHNulKYNmfCliMywmSzzQuBls",
+    authDomain: "my-epic-database.firebaseapp.com",
+    databaseURL: "https://my-epic-database-default-rtdb.firebaseio.com",
+    projectId: "my-epic-database",
+    storageBucket: "my-epic-database.appspot.com",
+    messagingSenderId: "533989527206",
+    appId: "1:533989527206:web:d34c0a693e6f19dc43ae67"
 };
 
 // 1. Initialize (Using Compat/Namespaced Syntax)
@@ -30,10 +30,12 @@ const errorMsg = document.getElementById('error-msg');
 // 2. Global Logs Listener (Pre-renders data)
 db.ref("Logs").on("value", (snap) => {
     allLogs = snap.val() || {};
+    
     // Refresh logs for every house immediately so they are ready before the click
     houseEls.forEach(el => {
         if (el.querySelector('.log-container')) {
             renderHouseLogs(el, el.dataset.house);
+            refreshSidebarLogs();
         }
     });
 });
@@ -196,7 +198,6 @@ function startLeaderboard() {
 
         // 🟢 Live Update Re-ordering Logic
         let needsReorder = false;
-        let activeHouseEl = null;
         let updatingHouses = [];
 
         houseEls.forEach(el => {
@@ -227,7 +228,7 @@ function startLeaderboard() {
 }
 
 
-// 6. Log Rendering (The Logic you provided)
+// 6. Log Rendering
 function renderHouseLogs(el, houseId) {
     const container = el.querySelector('.log-container');
     if (!container) return;
@@ -262,8 +263,8 @@ function renderHouseLogs(el, houseId) {
         const pointsDisplay = isPenalty ? `${log.pointsAdded}` : `+${log.pointsAdded}`;
 
         return `
-            <div class="log-item" style="display: flex; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid #f0f0f0;">
-                <div class="log-reason" style="color: #333;">${description}${commentText}</div>
+            <div class="log-item">
+                <div class="log-reason">${description}${commentText}</div>
                 <div class="${isPenalty ? 'log-points-negative' : 'log-points'}" style="font-weight:bold; color:${isPenalty ? '#e74c3c' : '#2ecc71'}">
                     ${pointsDisplay}
                 </div>
@@ -322,7 +323,7 @@ function runTicker() {
         tickerText.style.transform = "translateX(0)";
 
         void ticker.offsetWidth;  //FORCE REFLOW: This tells the browser "Reset the styles NOW"
-      
+
         const isPenalty = log.rankText === 'Penalty' || log.pointsAdded < 0;
         
         if (isPenalty) {
@@ -331,6 +332,7 @@ function runTicker() {
         else{
             tickerText.innerText = `${rank} in ${log.category}${logComment}`;
         }
+        
         ticker.classList.add('fade-ticker');
 
         setTimeout(() => {
@@ -338,7 +340,7 @@ function runTicker() {
                 tickerText.classList.add('should-scroll');
             }
         }, 50);
-      
+
         logIndices[houseId]++;
   });
 }
@@ -414,7 +416,7 @@ function animateCards(sortedEls, data) { // 🟢 Added 'data' as an argument
 }
 
 
-//button for IOS
+// Button for IOS
 document.addEventListener('DOMContentLoaded', () => {
   const pill = document.querySelector('.admin-action-pill');
 
