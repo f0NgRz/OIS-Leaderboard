@@ -1,22 +1,3 @@
-const firebaseConfig = {
-  apiKey: "AIzaSyDy7f5bnfNr7b9VE4XzUv2CPAnbJAXnGwU",
-  authDomain: "ois-leaderboard-87d79.firebaseapp.com",
-  projectId: "ois-leaderboard-87d79",
-  storageBucket: "ois-leaderboard-87d79.firebasestorage.app",
-  messagingSenderId: "682466996014",
-  appId: "1:682466996014:web:8de9ed2eb3082233ac94bf",
-  measurementId: "G-NS1FT50VWP"
-};
-// 1. Initialize (Using Compat/Namespaced Syntax)
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const auth = firebase.auth();
-const provider = new firebase.auth.GoogleAuthProvider();
-const analytics = firebase.analytics();
-
-// Forces the login picker to only show your school domain accounts
-provider.setCustomParameters({ hd: "oakbridge.edu.my" }); 
-
 const houseEls = Array.from(document.querySelectorAll('.house'));
 let currentData = {};
 let allLogs = {};
@@ -30,11 +11,10 @@ const errorMsg = document.getElementById('error-msg');
 db.ref("Logs").on("value", (snap) => {
     allLogs = snap.val() || {};
     
-    // Refresh logs for every house immediately so they are ready before the click
+    // Refresh only currently expanded house views when logs update
     houseEls.forEach(el => {
-        if (el.querySelector('.log-container')) {
+        if (el.classList.contains('expanded')) {
             renderHouseLogs(el, el.dataset.house);
-            refreshSidebarLogs();
         }
     });
 });
@@ -105,19 +85,6 @@ logoutBtn.addEventListener('click', () => {
 
 // 5. Leaderboard Core Logic
 function startLeaderboard() {
-
-    db.ref("Logs").on("value", (snap) => {
-        allLogs = snap.val() || {};
-        console.log("Logs synced for logged-in user");
-        
-        // Refresh any currently rendered cards
-        houseEls.forEach(el => {
-            if (el.querySelector('.log-container')) {
-                renderHouseLogs(el, el.dataset.house);
-            }
-        });
-    });
-
     db.ref('Houses').on('value', (snap) => {
         const data = snap.val();
         if (!data) return;
@@ -412,6 +379,44 @@ function animateCards(sortedEls, data) { // 🟢 Added 'data' as an argument
             }
         });
     });
+}
+
+
+//run in the console to verify points calculation matches the displayed scores
+function calculateTotalPoints(){
+    const calculatedPoints = {};
+    
+    // Calculate total points from logs for each house
+    Object.values(allLogs).forEach(log => {
+        if (log.houseId) {
+            if (!calculatedPoints[log.houseId]) {
+                calculatedPoints[log.houseId] = 0;
+            }
+            calculatedPoints[log.houseId] += log.pointsAdded;
+        }
+    });
+    
+    // Compare with currentData (which holds the actual scores)
+    console.log("=== Total Points Verification ===");
+    console.log("Calculated points from logs:", calculatedPoints);
+    console.log("Actual points in Houses:", currentData);
+    
+    let allMatch = true;
+    Object.keys(currentData).forEach(houseId => {
+        const calculated = calculatedPoints[houseId] || 0;
+        const actual = currentData[houseId];
+        
+        if (calculated !== actual) {
+            console.error(`❌ MISMATCH for ${houseId}: Calculated=${calculated}, Actual=${actual}`);
+            allMatch = false;
+        } else {
+            console.log(`✓ ${houseId}: ${calculated} points (Correct)`);
+        }
+    });
+    
+    if (allMatch) {
+        console.log("✓ All house points match!");
+    }
 }
 
 

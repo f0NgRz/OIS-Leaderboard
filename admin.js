@@ -1,18 +1,3 @@
-const firebaseConfig = {
-  apiKey: "AIzaSyDy7f5bnfNr7b9VE4XzUv2CPAnbJAXnGwU",
-  authDomain: "ois-leaderboard-87d79.firebaseapp.com",
-  projectId: "ois-leaderboard-87d79",
-  storageBucket: "ois-leaderboard-87d79.firebasestorage.app",
-  messagingSenderId: "682466996014",
-  appId: "1:682466996014:web:8de9ed2eb3082233ac94bf",
-  measurementId: "G-NS1FT50VWP"
-};
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.database();
-
-
 const houseEls = Array.from(document.querySelectorAll('.house'))
 
 let eventTypeData = {}; // Global variable to store points from DB
@@ -38,7 +23,6 @@ if (user && user.email.endsWith('@oakbridge.edu.my')) {
         // Start all your listeners
         fetchInitialData();
         startLeaderboardListener();
-        startIdleTracking();
         startLogsListener();
         startRecycleBinListener();
     } else {
@@ -308,18 +292,6 @@ function startLeaderboardListener() {
     });
 }
 
-let displayLimit = 5; // Start with 5
-
-function expandLogs() {
-    displayLimit += 10; // Increase to 50 (or whatever number you prefer)
-    startLogsListener(); // Restart the listener with the new limit
-
-    const container = document.querySelector('.logs-container');
-    if (container) {
-    container.scrollTop = 0;
-    }
-}
-
 let currentPage = 1;
 const logsPerPage = 10;
 let totalLogsArray = []; // To store the logs for pagination math
@@ -508,15 +480,13 @@ function deleteLog(logId, logData) {
     if (result.committed) {
         // 2. Add the log to the Recycle node
         const recycleRef = db.ref('Recycle').push();
-        recycleRef.set({
+        return recycleRef.set({
         ...logData,
         deletedAt: firebase.database.ServerValue.TIMESTAMP,
         deletedBy: auth.currentUser.email
-        });
-
-        // 3. Remove the original log from Logs
-        return db.ref('Logs').child(logId).remove();
-        alert("Log deleted and points reverted!");
+        })
+        .then(() => db.ref('Logs').child(logId).remove())
+        .then(() => alert("Log deleted and points reverted!"));
     }
     }).catch(err => {
     alert("Error reverting points: " + err.message);
@@ -618,19 +588,42 @@ function restoreLog(recycleId, itemData) {
     .catch(err => alert("Restore failed: " + err.message));
 }
 
-let idleTimer;
-function resetTimer() {
-    clearTimeout(idleTimer);
-    idleTimer = setTimeout(() => { logout(); }, 10 * 60 * 1000);
-}
-function startIdleTracking() {
-    ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(e => {
-    document.addEventListener(e, resetTimer, true);
+//run in the console to verify points calculation matches the displayed scores
+function calculateTotalPoints(){
+    const calculatedPoints = {};
+    
+    // Calculate total points from logs for each house
+    Object.values(allLogs).forEach(log => {
+        if (log.houseId) {
+            if (!calculatedPoints[log.houseId]) {
+                calculatedPoints[log.houseId] = 0;
+            }
+            calculatedPoints[log.houseId] += log.pointsAdded;
+        }
     });
-    resetTimer();
+    
+    // Compare with currentData (which holds the actual scores)
+    console.log("=== Total Points Verification ===");
+    console.log("Calculated points from logs:", calculatedPoints);
+    console.log("Actual points in Houses:", currentData);
+    
+    let allMatch = true;
+    Object.keys(currentData).forEach(houseId => {
+        const calculated = calculatedPoints[houseId] || 0;
+        const actual = currentData[houseId];
+        
+        if (calculated !== actual) {
+            console.error(`❌ MISMATCH for ${houseId}: Calculated=${calculated}, Actual=${actual}`);
+            allMatch = false;
+        } else {
+            console.log(`✓ ${houseId}: ${calculated} points (Correct)`);
+        }
+    });
+    
+    if (allMatch) {
+        console.log("✓ All house points match!");
+    }
 }
-
-
 const logoutBtn = document.getElementById('pill-logout-link');
 
 logoutBtn.addEventListener('click', () => {

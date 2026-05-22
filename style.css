@@ -6,7 +6,7 @@ body {
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding-bottom: 100px;
+      padding-bottom: 150px;
     }
     a { text-decoration: none; }
     hr { border: 0; border-top: 2px solid #eee; margin: 10px 0; }
@@ -462,6 +462,7 @@ body {
       position: relative;
       bottom: 0;
       font-size: 12px;
+      margin-top: 25px;
       margin-bottom: 12px;
       opacity: 25%;
     }
@@ -499,8 +500,8 @@ body {
 /*############################SEARCH BAR SECTION START#############################################*/
 .search-section {
     width: 90%;
-    max-width: 800px;
-    margin: 20px auto;
+    max-width: 700px;
+    margin-bottom: 20px;
     padding: 0 15px;
 }
 
@@ -531,7 +532,35 @@ body {
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     transition: all 0.3s ease;
     margin-top: 10px;
-    max-width: 800px;
+    max-width: 700px;
+    height: 10px;
+}
+
+.clear-search-btn {
+    position: absolute;
+    right: 13px;
+    background: transparent;
+    border: none;
+    color: #888;
+    font-size: 1rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    transition: color 0.2s ease, background 0.2s ease;
+}
+
+.clear-search-btn:hover {
+    color: #333;
+    background: rgba(0,0,0,0.05);
+}
+
+.clear-search-btn.hidden {
+    display: none;
 }
 
 .search-bar-wrapper input:focus {
@@ -546,9 +575,23 @@ body {
     border-radius: 15px;
     padding: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    max-height: 750px; /* fixed container height for approximately 10 logs */
+    overflow: hidden;
+    opacity: 1;
+    visibility: visible;
+    transition: max-height 0.4s ease-out, opacity 0.35s ease-out, margin-top 0.35s ease-out, padding 0.35s ease-out;
 
     /* 🟢 Smooth entry animation */
     animation: slideDown 0.4s ease-out;
+}
+
+#search-log-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 5px; /* prevent scrollbar overlap */
 }
 
 @keyframes slideDown {
@@ -563,7 +606,13 @@ body {
 }
 
 .log-results-container.hidden {
-    display: none;
+    max-height: 0;
+    opacity: 0;
+    visibility: hidden;
+    margin-top: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    pointer-events: none;
 }
 
 .results-header {
@@ -781,6 +830,14 @@ body {
     margin-top: 5px;
     
   }
+
+    .clear-search-btn {
+      right: 8px;
+      margin-bottom: 3px;
+      width: 25px;
+      height: 25px;
+      font-size: 0.9rem;
+    }
 
     .log-results-container {
     margin-top: 20px;
